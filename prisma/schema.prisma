@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Rol {
+  idRol       Int     @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  estado      Boolean @default(true)
+
+  usuarios Usuario[]
+}
+
+model Usuario {
+  idUsuario     Int      @id @default(autoincrement())
+  rolId         Int
+  nombre        String
+  apellido      String?
+  email         String   @unique
+  dni           String   @unique
+  contrasena    String
+  telefono      String?
+  estado        Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  rol         Rol              @relation(fields: [rolId], references: [idRol])
+  ventas      Venta[]
+  direcciones Direccion[]
+}
+
+model Direccion {
+  idDireccion  Int     @id @default(autoincrement())
+  usuarioId    Int
+  direccion    String
+  ciudad       String
+  estado       String?
+  pais         String
+  codigoPostal String?
+
+  usuario Usuario @relation(fields: [usuarioId], references: [idUsuario])
+  ventas  Venta[]
+}
+
+model Categoria {
+  idCategoria Int     @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  estado      Boolean @default(true)
+
+  articulos Articulo[]
+}
+
+model Color {
+  idColor   Int        @id @default(autoincrement())
+  nombre    String
+  codigoHex String?
+  estado    Boolean    @default(true)
+  Variante  Variante[]
+}
+
+model Marca {
+  idMarca     Int     @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  estado      Boolean @default(true)
+
+  articulos Articulo[]
+}
+
+model Genero {
+  idGenero    Int     @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  estado      Boolean @default(true)
+
+  articulos Articulo[]
+}
+
+model Articulo {
+  idArticulo  Int     @id @default(autoincrement())
+  categoriaId Int
+  marcaId     Int
+  generoId    Int?
+  codigo      String  @unique
+  nombre      String
+  precioVenta Decimal @db.Decimal(10, 2)
+  descripcion String?
+  imagen      String?
+  estado      Boolean @default(true)
+
+  categoria Categoria @relation(fields: [categoriaId], references: [idCategoria])
+  marca     Marca     @relation(fields: [marcaId], references: [idMarca])
+  genero    Genero?   @relation(fields: [generoId], references: [idGenero])
+
+  variantes Variante[]
+}
+
+model Variante {
+  idVariante Int                @id @default(autoincrement())
+  articuloId Int
+  stock      Int
+  articulo   Articulo           @relation(fields: [articuloId], references: [idArticulo])
+  atributos  VarianteAtributo[]
+  detalles   DetalleVenta[]
+  colorId    Int?
+  color      Color?             @relation(fields: [colorId], references: [idColor])
+}
+
+model VarianteAtributo {
+  idAtributo Int      @id @default(autoincrement())
+  varianteId Int
+  nombre     String // "Talla", "Capacidad", "RAM"
+  valor      String // "M", "128GB", "16GB"
+  variante   Variante @relation(fields: [varianteId], references: [idVariante])
+}
+
+model Venta {
+  idVenta     Int      @id @default(autoincrement())
+  usuarioId   Int
+  direccionId Int
+  fecha       DateTime @default(now())
+  total       Decimal  @db.Decimal(11, 2)
+  estado      String // pendiente, pagado, enviado, entregado, cancelado
+
+  usuario   Usuario        @relation(fields: [usuarioId], references: [idUsuario])
+  direccion Direccion @relation(fields: [direccionId], references: [idDireccion])
+  detalles  DetalleVenta[]
+  pagos     Pago[]
+}
+
+model DetalleVenta {
+  idDetalleVenta Int     @id @default(autoincrement())
+  ventaId        Int
+  varianteId     Int
+  cantidad       Int
+  precio         Decimal @db.Decimal(11, 2)
+  descuento      Decimal @db.Decimal(11, 2)
+
+  venta    Venta    @relation(fields: [ventaId], references: [idVenta])
+  variante Variante @relation(fields: [varianteId], references: [idVariante])
+}
+
+model Pago {
+  idPago  Int      @id @default(autoincrement())
+  ventaId Int
+  metodo  String // tarjeta, PayPal, transferencia, contraentrega
+  monto   Decimal  @db.Decimal(11, 2)
+  estado  String // pendiente, completado, fallido
+  fecha   DateTime @default(now())
+
+  venta Venta @relation(fields: [ventaId], references: [idVenta])
+}
