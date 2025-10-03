@@ -23,18 +23,18 @@ model Rol {
 }
 
 model Usuario {
-  idUsuario     Int      @id @default(autoincrement())
-  rolId         Int
-  nombre        String
-  apellido      String?
-  email         String   @unique
-  dni           String   @unique
-  contrasena    String
-  telefono      String?
-  estado        Boolean  @default(true)
+  idUsuario  Int      @id @default(autoincrement())
+  rolId      Int
+  nombre     String
+  apellido   String?
+  email      String   @unique
+  dni        String   @unique
+  contrasena String
+  telefono   String?
+  estado     Boolean  @default(true)
   created_at DateTime @default(now())
 
-  rol         Rol              @relation(fields: [rolId], references: [idRol])
+  rol         Rol         @relation(fields: [rolId], references: [idRol])
   ventas      Venta[]
   direcciones Direccion[]
 }
@@ -55,24 +55,45 @@ model Direccion {
 model Categoria {
   idCategoria Int     @id @default(autoincrement())
   nombre      String
-  descripcion String?
   estado      Boolean @default(true)
+
+  subcategorias Subcategoria[]
+}
+
+model Subcategoria {
+  idSubcategoria Int     @id @default(autoincrement())
+  nombre         String
+  estado         Boolean @default(true)
+
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [idCategoria])
+
+  subsubcategorias SubSubcategoria[]
+}
+
+model SubSubcategoria {
+  idSubSubcategoria Int     @id @default(autoincrement())
+  nombre            String
+  estado            Boolean @default(true)
+
+  subcategoriaId Int
+  subcategoria   Subcategoria @relation(fields: [subcategoriaId], references: [idSubcategoria])
 
   articulos Articulo[]
 }
 
 model Color {
-  idColor   Int        @id @default(autoincrement())
+  idColor   Int     @id @default(autoincrement())
   nombre    String
   codigoHex String?
-  estado    Boolean    @default(true)
-  Variante  Variante[]
+  estado    Boolean @default(true)
+
+  variantes Variante[]
 }
 
 model Marca {
   idMarca     Int     @id @default(autoincrement())
   nombre      String
-  descripcion String?
   estado      Boolean @default(true)
 
   articulos Articulo[]
@@ -81,7 +102,6 @@ model Marca {
 model Genero {
   idGenero    Int     @id @default(autoincrement())
   nombre      String
-  descripcion String?
   estado      Boolean @default(true)
 
   articulos Articulo[]
@@ -89,21 +109,20 @@ model Genero {
 
 model Articulo {
   idArticulo  Int     @id @default(autoincrement())
-  categoriaId Int
   marcaId     Int
   generoId    Int?
   codigo      String  @unique
   nombre      String
   precioVenta Decimal @db.Decimal(10, 2)
-  descripcion String?
   imagen      String?
   estado      Boolean @default(true)
 
-  categoria Categoria @relation(fields: [categoriaId], references: [idCategoria])
-  marca     Marca     @relation(fields: [marcaId], references: [idMarca])
-  genero    Genero?   @relation(fields: [generoId], references: [idGenero])
+  marca  Marca   @relation(fields: [marcaId], references: [idMarca])
+  genero Genero? @relation(fields: [generoId], references: [idGenero])
 
-  variantes Variante[]
+  variantes         Variante[]
+  SubSubcategoria   SubSubcategoria @relation(fields: [subSubcategoriaId], references: [idSubSubcategoria])
+  subSubcategoriaId Int
 }
 
 model Variante {
@@ -134,7 +153,7 @@ model Venta {
   estado      String // pendiente, pagado, enviado, entregado, cancelado
 
   usuario   Usuario        @relation(fields: [usuarioId], references: [idUsuario])
-  direccion Direccion @relation(fields: [direccionId], references: [idDireccion])
+  direccion Direccion      @relation(fields: [direccionId], references: [idDireccion])
   detalles  DetalleVenta[]
   pagos     Pago[]
 }
