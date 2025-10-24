@@ -14,10 +14,9 @@ datasource db {
 }
 
 model Rol {
-  idRol       Int     @id @default(autoincrement())
-  nombre      String
-  descripcion String?
-  estado      Boolean @default(true)
+  idRol  Int     @id @default(autoincrement())
+  nombre String
+  estado Boolean @default(true)
 
   usuarios Usuario[]
 }
@@ -92,17 +91,17 @@ model Color {
 }
 
 model Marca {
-  idMarca     Int     @id @default(autoincrement())
-  nombre      String
-  estado      Boolean @default(true)
+  idMarca Int     @id @default(autoincrement())
+  nombre  String
+  estado  Boolean @default(true)
 
   articulos Articulo[]
 }
 
 model Genero {
-  idGenero    Int     @id @default(autoincrement())
-  nombre      String
-  estado      Boolean @default(true)
+  idGenero Int     @id @default(autoincrement())
+  nombre   String
+  estado   Boolean @default(true)
 
   articulos Articulo[]
 }
@@ -113,6 +112,7 @@ model Articulo {
   generoId    Int?
   codigo      String  @unique
   nombre      String
+  slug        String? @unique
   precioVenta Decimal @db.Decimal(10, 2)
   imagen      String?
   estado      Boolean @default(true)
@@ -126,22 +126,51 @@ model Articulo {
 }
 
 model Variante {
-  idVariante Int                @id @default(autoincrement())
+  idVariante Int  @id @default(autoincrement())
   articuloId Int
-  stock      Int
-  articulo   Articulo           @relation(fields: [articuloId], references: [idArticulo])
-  atributos  VarianteAtributo[]
-  detalles   DetalleVenta[]
   colorId    Int?
-  color      Color?             @relation(fields: [colorId], references: [idColor])
+  tallaId    Int?
+  stock      Int  @default(0)
+
+  articulo       Articulo         @relation(fields: [articuloId], references: [idArticulo])
+  color          Color?           @relation(fields: [colorId], references: [idColor])
+  talla          Talla?           @relation(fields: [tallaId], references: [idTalla])
+  detalles       DetalleVenta[]
+  DetalleIngreso DetalleIngreso[]
 }
 
-model VarianteAtributo {
-  idAtributo Int      @id @default(autoincrement())
+model Talla {
+  idTalla   Int        @id @default(autoincrement())
+  nombre    String     @unique
+  tipo      String
+  estado    Boolean    @default(true)
+  variantes Variante[]
+}
+
+model Proveedor {
+  idProveedor Int       @id @default(autoincrement())
+  nombre      String
+  ruc         String?   @unique
+  direccion   String?
+  telefono    String?
+  ingresos    Ingreso[]
+}
+
+model Ingreso {
+  idIngreso   Int              @id @default(autoincrement())
+  fecha       DateTime         @default(now())
+  proveedorId Int
+  proveedor   Proveedor        @relation(fields: [proveedorId], references: [idProveedor])
+  detalles    DetalleIngreso[]
+}
+
+model DetalleIngreso {
+  idDetalle  Int      @id @default(autoincrement())
+  cantidad   Int
   varianteId Int
-  nombre     String // "Talla", "Capacidad", "RAM"
-  valor      String // "M", "128GB", "16GB"
+  ingresoId  Int
   variante   Variante @relation(fields: [varianteId], references: [idVariante])
+  ingreso    Ingreso  @relation(fields: [ingresoId], references: [idIngreso])
 }
 
 model Venta {

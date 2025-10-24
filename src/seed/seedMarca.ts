@@ -89,7 +89,7 @@ export const marcaSeeder = async () => {
     { nombre: "Clinique" },
     { nombre: "Revlon" },
     { nombre: "Maybelline" },
-    { nombre: "Benefit Cosmetics" },
+    { nombre: "Benefñit Cosmetics" },
     { nombre: "Urban Decay" },
     { nombre: "Shiseido" },
     { nombre: "Nivea" },

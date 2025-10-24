@@ -9,6 +9,9 @@ export const loginUser = async (req: Request, res: Response) => {
   try {
     const usuario = await prisma.usuario.findUnique({
       where: { email },
+      include: {
+        rol: true
+      }
     });
 
     if (!usuario) {
@@ -21,7 +24,7 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     const expiresIn = "1h";
-    const expiresInSeconds = 60 * 60; 
+    const expiresInSeconds = 60 * 60;
     const expirationDate = Math.floor(Date.now() / 1000) + expiresInSeconds;
 
     const token = jwt.sign(
@@ -38,9 +41,10 @@ export const loginUser = async (req: Request, res: Response) => {
         idUsuario: usuario.idUsuario,
         nombre: usuario.nombre,
         apellidos: usuario.apellido,
-        dni:usuario.dni,
-        telefono:usuario.telefono,
+        dni: usuario.dni,
+        telefono: usuario.telefono,
         email: usuario.email,
+        rol:usuario.rol
       },
     });
   } catch (error) {

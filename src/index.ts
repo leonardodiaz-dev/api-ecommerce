@@ -6,6 +6,16 @@ import categoriaRouter from './routes/categoriaRoute';
 import cors from 'cors'
 import articuloRouter from './routes/articuloRoute';
 import dotenv from 'dotenv';
+import generoRouter from './routes/generoRoute';
+import subcategoriaRouter from './routes/subcategoriasRoute';
+import subsubcategoriaRouter from './routes/subsubcategoriaRoute';
+import colorRouter from './routes/colorRoute';
+import marcaRouter from './routes/marcaRoute';
+import tallaRouter from './routes/tallaRoute';
+import path from 'path';
+import proveedorRouter from './routes/proveedorRoute';
+import ingresoRouter from './routes/ingresoRoute';
+import varianteRouter from './routes/varianteRoute';
 
 const app = express();
 
@@ -16,11 +26,22 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'], 
   credentials: true 
 }));
+
 app.use(express.json());  
 app.use("/api", usuarioRouter);
 app.use("/api",rolRoute)
 app.use("/api",categoriaRouter)
 app.use("/api",articuloRouter)
+app.use("/api",generoRouter)
+app.use("/api",subcategoriaRouter)
+app.use("/api",subsubcategoriaRouter)
+app.use("/api",colorRouter)
+app.use("/api",marcaRouter)
+app.use("/api",tallaRouter)
+app.use("/api",proveedorRouter)
+app.use("/api",ingresoRouter)
+app.use("/api",varianteRouter)
+app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 const PORT = 3000;
 

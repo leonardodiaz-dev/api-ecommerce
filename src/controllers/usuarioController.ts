@@ -6,7 +6,6 @@ export const createUser = async (req: Request, res: Response) => {
 
     try {
         const { nombre, apellido, email, dni, contrasena, rolNombre, telefono } = req.body
-
         const hashedPassword = await bcrypt.hash(contrasena, 10);
 
         const rol = await prisma.rol.findFirst({
@@ -53,8 +52,13 @@ export const listUsuarios = async (req: Request, res: Response) => {
                 apellido: true,
                 dni: true,
                 email: true,
-                telefono: true
-            }
+                telefono: true,
+                rol:{
+                    select:{
+                        nombre:true
+                    }
+                }
+            },
         })
         return res.status(200).json(usuarios)
     } catch (error) {

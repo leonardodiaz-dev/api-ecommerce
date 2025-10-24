@@ -3,6 +3,7 @@ import { marcaSeeder } from "./seedMarca";
 import { generoSeeder } from "./seedGenero";
 import { categoriaSeeder } from "./seedCategoria";
 import { articuloSeeder } from "./seedArticulo";
+import { tallaSeeder } from "./seedTalla";
 
 const prisma = new PrismaClient();
 
@@ -11,6 +12,7 @@ const main = async () => {
   await generoSeeder();
   await categoriaSeeder();
   await articuloSeeder();
+  await tallaSeeder();
 };
 
 main()
