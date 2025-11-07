@@ -284,7 +284,7 @@ export const listarArticulos = async (req: Request, res: Response) => {
         },
       }, orderBy: [
         {
-          idArticulo: "desc"
+          idArticulo: "asc"
         }
       ]
     });
@@ -319,7 +319,7 @@ export const getArticulos = async (req: Request, res: Response) => {
       precioMin,
       precioMax,
       page = "1",
-      limit = "10",
+      limit = "12",
     } = req.query;
 
     const pageNumber = parseInt(page as string, 10);
@@ -337,7 +337,7 @@ export const getArticulos = async (req: Request, res: Response) => {
       filters.marca = {
         nombre: {
           in: nombres,
-          mode: "insensitive", 
+          mode: "insensitive",
         },
       };
     }
@@ -425,3 +425,87 @@ export const getArticulos = async (req: Request, res: Response) => {
     }
   }
 };
+
+export const updateEstadoArticulo = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    const { estado } = req.body
+
+    const articulo = await prisma.articulo.update({
+      where: {
+        idArticulo: Number(id)
+      },
+      data: {
+        estado
+      }
+    })
+    return res.status(200).json(articulo)
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+}
+
+export const getRangoPrecio = async (req: Request, res: Response) => {
+  try {
+    const { categoria, marca } = req.query;
+
+    if (!categoria && !marca) {
+      return res.status(400).json({
+        message: "Debe enviar 'categoria' (nombre de subcategoría o subsubcategoría) o 'marca'.",
+      });
+    }
+
+    const where: any = { OR: [] };
+
+    if (marca) {
+      where.OR.push({
+        marca: {
+          nombre: { equals: String(marca), mode: "insensitive" },
+        },
+      });
+    }
+
+    if (categoria) {
+      const nombreCategoria = String(categoria);
+
+      where.OR.push(
+        {
+          SubSubcategoria: {
+            nombre: { equals: nombreCategoria, mode: "insensitive" },
+          },
+        },
+        {
+          SubSubcategoria: {
+            subcategoria: {
+              nombre: { equals: nombreCategoria, mode: "insensitive" },
+            },
+          },
+        }
+      );
+    }
+
+    const [minPrecio, maxPrecio] = await Promise.all([
+      prisma.articulo.aggregate({
+        _min: { precioVenta: true },
+        where,
+      }),
+      prisma.articulo.aggregate({
+        _max: { precioVenta: true },
+        where,
+      }),
+    ]);
+
+    return res.json({
+      min: minPrecio._min.precioVenta ?? 0,
+      max: maxPrecio._max.precioVenta ?? 0,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Error al obtener el rango de precios",
+    });
+  }
+};
+

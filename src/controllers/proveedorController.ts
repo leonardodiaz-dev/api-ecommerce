@@ -47,7 +47,13 @@ export const updateProveedor = async (req: Request, res: Response) => {
 export const getAllProveedores = async (req: Request, res: Response) => {
 
     try {
-        const proveedores = await prisma.proveedor.findMany()
+        const proveedores = await prisma.proveedor.findMany(
+            {
+                orderBy:{
+                    idProveedor:"asc"
+                }
+            }
+        )
         return res.status(200).json(proveedores)
     } catch (error) {
         if (error instanceof Error) {
@@ -56,25 +62,46 @@ export const getAllProveedores = async (req: Request, res: Response) => {
     }
 }
 
+export const updateEstadoProveedor = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const { estado } = req.body
+
+        const proveedor = await prisma.proveedor.update({
+            where: {
+                idProveedor: Number(id)
+            },
+            data: {
+                estado
+            }
+        })
+        return res.status(200).json(proveedor)
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+}
+
 export const existProveedor = async (req: Request, res: Response) => {
-  try {
-    const { ruc } = req.params;
-    const { excludeId } = req.query;
+    try {
+        const { ruc } = req.params;
+        const { excludeId } = req.query;
 
-    const whereClause: any = { ruc };
+        const whereClause: any = { ruc };
 
-    if (excludeId) {
-      whereClause.NOT = { idProveedor: Number(excludeId) };
+        if (excludeId) {
+            whereClause.NOT = { idProveedor: Number(excludeId) };
+        }
+
+        const proveedor = await prisma.proveedor.findFirst({
+            where: whereClause,
+        });
+
+        return res.status(200).json({ existe: !!proveedor });
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
     }
-
-    const proveedor = await prisma.proveedor.findFirst({
-      where: whereClause,
-    });
-
-    return res.status(200).json({ existe: !!proveedor });
-  } catch (error) {
-    if (error instanceof Error) {
-      return res.status(500).json({ message: error.message });
-    }
-  }
 };

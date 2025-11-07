@@ -1,10 +1,14 @@
 import express from 'express'
-import subcategoriaRouter from './subcategoriasRoute'
-import { getSubsubcategoriasBySubCategoriaId, obtenerMarcasBySubsubcategoria, } from '../controllers/subsubcategoriasController'
+import { createSubsubcategoria, getAllSubsubcategorias, getSubsubcategoriasBySubCategoriaId, obtenerMarcasBySubsubcategoria, updateEstadoSubsubcategoria, updateSubsubcategoria, } from '../controllers/subsubcategoriasController'
+import { authMiddleware } from '../middlewares/auth'
 
 const subsubcategoriaRouter = express.Router()
 
-subcategoriaRouter.get("/subsubcategorias/:id",getSubsubcategoriasBySubCategoriaId)
-subcategoriaRouter.get("/subsubcategorias/marcas/:nombre",obtenerMarcasBySubsubcategoria)
+subsubcategoriaRouter.get("/subsubcategorias/:id", getSubsubcategoriasBySubCategoriaId)
+subsubcategoriaRouter.get("/subsubcategorias/marcas/:nombre", obtenerMarcasBySubsubcategoria)
+subsubcategoriaRouter.get("/subsubcategorias", authMiddleware, getAllSubsubcategorias)
+subsubcategoriaRouter.patch("/subsubcategorias/:id",authMiddleware,updateEstadoSubsubcategoria)
+subsubcategoriaRouter.post("/subsubcategorias",authMiddleware,createSubsubcategoria)
+subsubcategoriaRouter.put("/subsubcategorias/:id",authMiddleware,updateSubsubcategoria)
 
 export default subsubcategoriaRouter

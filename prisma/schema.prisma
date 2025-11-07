@@ -38,17 +38,38 @@ model Usuario {
   direcciones Direccion[]
 }
 
-model Direccion {
-  idDireccion  Int     @id @default(autoincrement())
-  usuarioId    Int
-  direccion    String
-  ciudad       String
-  estado       String?
-  pais         String
-  codigoPostal String?
+model Departamento {
+  idDepartamento Int         @id @default(autoincrement())
+  nombre         String
+  provincias     Provincia[]
+}
 
-  usuario Usuario @relation(fields: [usuarioId], references: [idUsuario])
-  ventas  Venta[]
+model Provincia {
+  idProvincia    Int          @id @default(autoincrement())
+  nombre         String
+  departamentoId Int
+  departamento   Departamento @relation(fields: [departamentoId], references: [idDepartamento])
+  distritos      Distrito[]
+}
+
+model Distrito {
+  idDistrito  Int         @id @default(autoincrement())
+  nombre      String
+  provinciaId Int
+  provincia   Provincia   @relation(fields: [provinciaId], references: [idProvincia])
+  Direccion   Direccion[]
+}
+
+model Direccion {
+  idDireccion Int    @id @default(autoincrement())
+  isPrincipal Boolean?
+  usuarioId   Int
+  direccion   String
+  distritoId  Int
+
+  distrito Distrito @relation(fields: [distritoId], references: [idDistrito])
+  usuario  Usuario  @relation(fields: [usuarioId], references: [idUsuario])
+  ventas   Venta[]
 }
 
 model Categoria {
@@ -153,6 +174,7 @@ model Proveedor {
   ruc         String?   @unique
   direccion   String?
   telefono    String?
+  estado      Boolean?  @default(true)
   ingresos    Ingreso[]
 }
 

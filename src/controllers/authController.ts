@@ -40,7 +40,7 @@ export const loginUser = async (req: Request, res: Response) => {
       user: {
         idUsuario: usuario.idUsuario,
         nombre: usuario.nombre,
-        apellidos: usuario.apellido,
+        apellido: usuario.apellido,
         dni: usuario.dni,
         telefono: usuario.telefono,
         email: usuario.email,

@@ -1,28 +1,96 @@
 import { prisma } from "../lib/prisma";
 import { Request, Response } from "express";
 
-export const listCategoriasWithSubCategorias = async (req: Request, res: Response) => {
-
+export const createCategoria = async (req: Request, res: Response) => {
     try {
-        const categorias = await prisma.categoria.findMany({
-            select: {
-                idCategoria: true,
-                nombre: true,
-                subcategorias: {
-                    select: {
-                        idSubcategoria: true,
-                        nombre: true,
-                        subsubcategorias: {
-                            select: {
-                                idSubSubcategoria: true,
-                                nombre: true
-                            }
-                        }
-                    }
-                }
+        const { nombre } = req.body
+
+        const newCategoria = await prisma.categoria.create({
+            data: {
+                nombre
             }
         })
-        return res.status(200).json(categorias)
+        res.status(201).json(newCategoria)
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+}
+
+export const updateCategoria = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const { nombre } = req.body
+
+        const categoria = await prisma.categoria.update({
+            where: {
+                idCategoria: Number(id)
+            },
+            data: {
+                nombre
+            }
+        })
+        return res.status(200).json(categoria)
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+}
+
+export const listCategoriasWithSubCategorias = async (req: Request, res: Response) => {
+  try {
+    const categorias = await prisma.categoria.findMany({
+      where: {
+        estado: true, 
+      },
+      select: {
+        idCategoria: true,
+        nombre: true,
+        subcategorias: {
+          where: {
+            estado: true, 
+          },
+          select: {
+            idSubcategoria: true,
+            nombre: true,
+            subsubcategorias: {
+              where: {
+                estado: true, 
+              },
+              select: {
+                idSubSubcategoria: true,
+                nombre: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return res.status(200).json(categorias);
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+};
+
+export const updateEstadoCategoria = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        const { estado } = req.body
+
+        const categoria = await prisma.categoria.update({
+            where: {
+                idCategoria: Number(id)
+            },
+            data: {
+                estado
+            }
+        })
+        return res.status(200).json(categoria)
     } catch (error) {
         if (error instanceof Error) {
             return res.status(500).json({ message: error.message });
@@ -32,7 +100,11 @@ export const listCategoriasWithSubCategorias = async (req: Request, res: Respons
 
 export const getAllCategorias = async (req: Request, res: Response) => {
     try {
-        const categorias = await prisma.categoria.findMany()
+        const categorias = await prisma.categoria.findMany({
+            orderBy:{
+                "idCategoria":"desc"
+            }
+        })
         return res.status(200).json(categorias)
     } catch (error) {
         if (error instanceof Error) {
