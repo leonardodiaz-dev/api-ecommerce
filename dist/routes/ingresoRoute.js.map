@@ -1,0 +1,1 @@
+{"version":3,"file":"ingresoRoute.js","sourceRoot":"","sources":["../../src/routes/ingresoRoute.ts"],"names":[],"mappings":";;;;;AAAA,sDAA6B;AAC7B,8CAAoD;AACpD,wEAAgF;AAEhF,MAAM,aAAa,GAAG,iBAAO,CAAC,MAAM,EAAE,CAAA;AAEtC,aAAa,CAAC,GAAG,CAAC,WAAW,EAAC,qBAAc,EAAC,kCAAc,CAAC,CAAA;AAC5D,aAAa,CAAC,IAAI,CAAC,WAAW,EAAC,qBAAc,EAAC,iCAAa,CAAC,CAAA;AAE5D,kBAAe,aAAa,CAAA"}
