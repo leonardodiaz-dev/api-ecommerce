@@ -36,11 +36,9 @@ export const handleImageUpload = (
   const nuevaRuta = `/uploads/${file.filename}`;
 
   if (imagenActual) {
-    const relativePath = imagenActual.startsWith("/")
-      ? imagenActual.slice(1)
-      : imagenActual;
-
-    const rutaAntigua = path.join(__dirname, "../../", relativePath);
+    const filename = path.basename(imagenActual);
+    const UPLOAD_PATH = path.join(__dirname, "../../uploads");
+    const rutaAntigua = path.join(UPLOAD_PATH, filename);
 
     fs.unlink(rutaAntigua, (err) => {
       if (err) console.warn("⚠️ No se pudo eliminar la imagen anterior:", err);
@@ -52,11 +50,11 @@ export const handleImageUpload = (
 };
 
 export const generarSlug = (nombre: string): string => {
-    return nombre
-        .toLowerCase()
-        .normalize("NFD") 
-        .replace(/[\u0300-\u036f]/g, "") 
-        .replace(/[^a-z0-9\s-]/g, "") 
-        .trim()
-        .replace(/\s+/g, "-"); 
+  return nombre
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
 };
