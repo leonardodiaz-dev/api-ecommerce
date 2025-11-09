@@ -31,12 +31,17 @@ export const handleImageUpload = (
   file: Express.Multer.File | undefined,
   imagenActual?: string
 ): string | undefined => {
-  if (!file) return imagenActual; 
+  if (!file) return imagenActual;
 
   const nuevaRuta = `/uploads/${file.filename}`;
 
   if (imagenActual) {
-    const rutaAntigua = path.join(__dirname, `../../public${imagenActual}`);
+    const relativePath = imagenActual.startsWith("/")
+      ? imagenActual.slice(1)
+      : imagenActual;
+
+    const rutaAntigua = path.join(__dirname, "../../", relativePath);
+
     fs.unlink(rutaAntigua, (err) => {
       if (err) console.warn("⚠️ No se pudo eliminar la imagen anterior:", err);
       else console.log("🗑️ Imagen anterior eliminada:", rutaAntigua);

@@ -59,7 +59,7 @@ app.use("/api", direccionRouter)
 app.use("/api", departamentoRouter)
 app.use("/api", provinciaRouter)
 app.use("/api", distritoRouter)
-app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 const PORT = 3000;
 

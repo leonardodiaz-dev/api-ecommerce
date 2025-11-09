@@ -23,7 +23,7 @@ export const createArticulo = async (req: Request, res: Response) => {
         precioVenta: Number(precioVenta),
         marcaId: Number(marcaId),
         subSubcategoriaId: Number(subSubcategoriaId),
-        generoId: Number(generoId),
+        generoId: generoId ? Number(generoId) : null,
         imagen,
         variantes: {
           create: variantes.map((v: Variante) => ({
@@ -31,6 +31,10 @@ export const createArticulo = async (req: Request, res: Response) => {
             tallaId: v.tallaId ? Number(v.tallaId) : null,
           })),
         },
+      },
+      include: {
+        marca: true,
+        genero: true,
       }
     });
 
@@ -196,10 +200,10 @@ export const updateArticulo = async (req: Request, res: Response) => {
         slug: generarSlug(nombre),
         marcaId: Number(marcaId),
         subSubcategoriaId: Number(subSubcategoriaId),
-        generoId: Number(generoId),
+        generoId:  generoId ? Number(generoId) : null,
         imagen: imagen ?? null
       },
-      include: { variantes: true },
+      include: { variantes: true, marca: true, genero: true },
     });
 
     res.status(200).json(articuloActualizado);
