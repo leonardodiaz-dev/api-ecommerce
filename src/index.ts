@@ -27,7 +27,7 @@ const app = express();
 dotenv.config();
 app.use(morgan('dev'));
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.CLIENT,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   credentials: true
 }));
