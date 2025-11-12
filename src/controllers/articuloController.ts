@@ -2,7 +2,7 @@ import { Variante } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { Request, Response } from "express";
 import { parsearVariantes } from "../utils/variantesHelper";
-import { generarCodigoArticulo, generarSlug, handleImageUpload } from "../utils/articuloHelper";
+import { existeSlug, generarCodigoArticulo, generarSlugUnico, handleImageUpload } from "../utils/articuloHelper";
 
 export const createArticulo = async (req: Request, res: Response) => {
   try {
@@ -15,11 +15,12 @@ export const createArticulo = async (req: Request, res: Response) => {
 
     const imagen = req.file ? `/uploads/${req.file.filename}` : null;
 
+    const slug = await generarSlugUnico(nombre, (slug) => existeSlug(slug));
     const newArticulo = await prisma.articulo.create({
       data: {
         codigo,
         nombre,
-        slug: generarSlug(nombre),
+        slug,
         precioVenta: Number(precioVenta),
         marcaId: Number(marcaId),
         subSubcategoriaId: Number(subSubcategoriaId),
@@ -139,7 +140,7 @@ export const updateArticulo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { nombre, generoId, precioVenta, marcaId, subSubcategoriaId, variantes } = req.body;
-
+    const imagen = req.file ? `/uploads/${req.file.filename}` : null;
     let parsedVariantes: any[] = [];
     if (variantes) parsedVariantes = parsearVariantes(variantes)
 
@@ -189,19 +190,26 @@ export const updateArticulo = async (req: Request, res: Response) => {
       });
     }
 
-    let imagen: string | undefined
-    if (articuloExistente.imagen) imagen = handleImageUpload(req.file, articuloExistente.imagen)
+    let imagenActual: string | undefined
+    if (articuloExistente.imagen) imagenActual = handleImageUpload(req.file, articuloExistente.imagen)
+
+    let slug = articuloExistente.slug;
+    if (nombre && nombre !== articuloExistente.nombre) {
+      slug = await generarSlugUnico(nombre, (slug) =>
+        existeSlug(slug, Number(id))
+      );
+    }
 
     const articuloActualizado = await prisma.articulo.update({
       where: { idArticulo: Number(id) },
       data: {
         nombre,
         precioVenta: Number(precioVenta),
-        slug: generarSlug(nombre),
+        slug,
         marcaId: Number(marcaId),
         subSubcategoriaId: Number(subSubcategoriaId),
-        generoId:  generoId ? Number(generoId) : null,
-        imagen: imagen ?? null
+        generoId: generoId ? Number(generoId) : null,
+        imagen: imagenActual ?? imagen
       },
       include: { variantes: true, marca: true, genero: true },
     });
@@ -387,18 +395,19 @@ export const getArticulos = async (req: Request, res: Response) => {
         OR: [
           {
             SubSubcategoria: {
-              nombre: { contains: categoriaBuscar, mode: "insensitive" },
+              nombre: { equals: categoriaBuscar, mode: "insensitive" },
             },
           },
           {
             SubSubcategoria: {
               subcategoria: {
-                nombre: { contains: categoriaBuscar, mode: "insensitive" },
+                nombre: { equals: categoriaBuscar, mode: "insensitive" },
               },
             },
           },
         ],
       };
+
     }
 
     const where = { AND: [filters, categoriaFilter, generoFilter] };

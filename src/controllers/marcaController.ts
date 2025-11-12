@@ -1,6 +1,22 @@
 import { prisma } from "../lib/prisma";
 import { Request, Response } from "express";
 
+export const createMarca = async (req: Request, res: Response) => {
+    try {
+        const { nombre } = req.body
+        const marca = await prisma.marca.create({
+            data: {
+                nombre
+            }
+        })
+        return res.status(200).json(marca)
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+}
+
 export const getAllMarcas = async (req: Request, res: Response) => {
     try {
         const marcas = await prisma.marca.findMany()

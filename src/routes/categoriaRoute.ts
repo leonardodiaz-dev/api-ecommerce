@@ -10,4 +10,5 @@ categoriaRouter.get("/categorias", authMiddleware, createCategoria)
 categoriaRouter.get("/categorias/subcategorias", listCategoriasWithSubCategorias)
 categoriaRouter.patch("/categorias/:id",authMiddleware,updateEstadoCategoria)
 
+
 export default categoriaRouter

@@ -49,12 +49,40 @@ export const handleImageUpload = (
   return nuevaRuta;
 };
 
-export const generarSlug = (nombre: string): string => {
-  return nombre
+export const existeSlug = async (slug: string, idArticulo?: number) => {
+  const articulo = await prisma.articulo.findFirst({
+    where: idArticulo
+      ? {
+          slug,
+          NOT: { idArticulo },
+        }
+      : { slug },
+  });
+
+  return Boolean(articulo);
+};
+
+export const generarSlugUnico = async (
+  nombre: string,
+  existeSlug: (slug: string) => Promise<boolean>
+) => {
+  let slug = nombre
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/\s+/g, "-");
+
+  let slugFinal = slug;
+  let contador = 1;
+
+  while (await existeSlug(slugFinal)) {
+    slugFinal = `${slug}-${contador}`;
+    contador++;
+  }
+
+  return slugFinal;
 };
+
+
