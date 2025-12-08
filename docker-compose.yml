@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: ecommerce_app
+    ports:
+      - "8000:80"     
+    volumes:
+      - ./:/var/www/html
+      - ./vendor:/var/www/html/vendor  
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      SKIP_COMPOSER: 1
+      WEBROOT: /var/www/html/public
+      PHP_ERRORS_STDERR: 1
+      RUN_SCRIPTS: 1
+      REAL_IP_HEADER: 1
+    networks:
+      - laravel
+
+  postgres:
+    image: postgres:16
+    container_name: ecommerce_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - laravel
+
+networks:
+  laravel:
+
+volumes:
+  pgdata:
