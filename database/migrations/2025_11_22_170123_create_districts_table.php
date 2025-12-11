@@ -9,11 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    public $withinTransaction = false;
+
     public function up(): void
     {
         Schema::create('districts', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre',100);
+            $table->string('nombre', 100);
             $table->foreignId('province_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });

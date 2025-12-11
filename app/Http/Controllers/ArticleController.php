@@ -19,7 +19,7 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = Article::with(['brand', 'gender', 'subsubcategory'])->get();
+        $articles = Article::with(['brand', 'gender', 'subsubcategory'])->orderBy('id', 'asc')->get();
         return ArticleResource::collection($articles);
     }
 
@@ -83,7 +83,6 @@ class ArticleController extends Controller
             $data = $request->validated();
 
             $data['codigo'] = Article::generarCodigo();
-
             $data['slug'] = Article::generarSlug($data['nombre']);
 
             if ($request->hasFile('imagen')) {
@@ -179,7 +178,7 @@ class ArticleController extends Controller
                 'variants' => $formattedVariants
             ]);
         } catch (\Throwable $th) {
-              return response()->json([
+            return response()->json([
                 'message' => 'Error al procesar la solicitud',
                 'Error' => $th->getMessage()
             ], 500);
@@ -312,44 +311,46 @@ class ArticleController extends Controller
                 $data['imagen'] = $request->file('imagen')->store('articles', 'public');
             }
 
-            $article->update([
-                'nombre'            => $data['nombre'],
-                'precioVenta'       => $data['precioVenta'],
-                'brand_id'          => $data['brand_id'],
-                'gender_id'         => $data['gender_id'],
-                'category_id'       => $data['category_id'] ?? $article->category_id,
-                'subcategory_id'    => $data['subcategory_id'] ?? $article->subcategory_id,
-                'subsubcategory_id' => $data['subsubcategory_id'],
-                'imagen'            => $data['imagen'] ?? $article->imagen,
-            ]);
-            
-            $variants = json_decode($data['variants'], true);
+            $article->update($data);
+
+            $variants = json_decode($data['variants'], true) ?? [];
+
+            if (empty($variants)) {
+                $variants = [
+                    [
+                        'color_id' => null,
+                        'size_id' => null
+                    ]
+                ];
+            }
+
             $incoming = collect($variants)->pluck('id')->filter();
+
             $article->variants()
                 ->whereNotIn('id', $incoming)
                 ->delete();
 
             foreach ($variants as $item) {
-
                 if (!empty($item['id'])) {
-
                     $article->variants()
                         ->where('id', $item['id'])
                         ->update([
                             'color_id' => $item['color_id'] ?? null,
-                            'size_id' => $item['size_id'] ?? null
+                            'size_id' => $item['size_id'] ?? null,
                         ]);
                 } else {
-
                     $article->variants()->create([
                         'color_id' => $item['color_id'] ?? null,
-                        'size_id' => $item['size_id'] ?? null
+                        'size_id' => $item['size_id'] ?? null,
                     ]);
                 }
             }
 
-            $article->load(['brand', 'gender', 'subsubcategory','variants']);
-            return (new ArticleResource($article))->response()->setStatusCode(200);
+            $article->load(['brand', 'gender', 'subsubcategory', 'variants']);
+
+            return (new ArticleResource($article))
+                ->response()
+                ->setStatusCode(200);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Error al procesar la solicitud',

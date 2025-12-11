@@ -9,11 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    public $withinTransaction = false;
+
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre',50)->unique();
+            $table->string('nombre', 50)->unique();
             $table->boolean('estado')->default(true);
             $table->timestamps();
         });
