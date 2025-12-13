@@ -80,8 +80,8 @@ class StripeController extends Controller
                 'payment_method_types' => ['card'],
                 'mode' => 'payment',
                 'line_items' => $lineItems,
-                'success_url' => 'http://localhost:5173/success',
-                'cancel_url' => 'http://localhost:5173/cancel',
+                'success_url' => 'https://novashop-ecommerce.netlify.app/success',
+                'cancel_url' => 'https://novashop-ecommerce.netlify.app/cancel',
                 'metadata' => [
                     'ventaId' => $venta->id,
                     'pagoId' => $pago->id,
