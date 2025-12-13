@@ -38,8 +38,8 @@ class ArticleController extends Controller
 
             $query->where(function ($q) use ($category_nombre) {
                 if ($category_nombre) {
-                    $q->whereHas('subsubcategory', fn($q2) => $q2->where('nombre', $category_nombre))
-                        ->orWhereHas('subsubcategory.subcategory', fn($q2) => $q2->where('nombre', $category_nombre));
+                    $q->whereHas('subsubcategory', fn($q2) => $q2->where('nombre', 'LIKE', '%' . $category_nombre . '%'))
+                        ->orWhereHas('subsubcategory.subcategory', fn($q2) => $q2->where('nombre', 'LIKE', '%' . $category_nombre . '%'));
                 }
             });
             if ($nombre) {
@@ -265,14 +265,17 @@ class ArticleController extends Controller
 
                 if ($categoria) {
                     $cat = strtolower($categoria);
-
+                    
                     $q->orWhereHas('subsubcategory', function ($q2) use ($cat) {
-                        $q2->whereRaw('LOWER(nombre) = ?', [$cat]);
+                       
+                        $q2->whereRaw('LOWER(nombre) LIKE ?', ['%' . $cat . '%']);
                     });
 
                     $q->orWhereHas('subsubcategory.subcategory', function ($q2) use ($cat) {
-                        $q2->whereRaw('LOWER(nombre) = ?', [$cat]);
+                    
+                        $q2->whereRaw('LOWER(nombre) LIKE ?', ['%' . $cat . '%']);
                     });
+
                 }
             });
 
@@ -301,6 +304,9 @@ class ArticleController extends Controller
 
             if ($data['nombre'] !== $article->nombre) {
                 $data['slug'] = Article::generarSlug($data['nombre']);
+            }
+            if (!isset($request->gender_id)) {
+                $data['gender_id'] = null;
             }
 
             if ($request->hasFile('imagen')) {
