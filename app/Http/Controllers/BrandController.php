@@ -24,8 +24,8 @@ class BrandController extends Controller
 
         try {
             $brands = Brand::whereHas('articles', function ($q) use ($categoria) {
-                $q->whereHas('subsubcategory', fn($q) => $q->where('nombre', $categoria))
-                    ->orWhereHas('subsubcategory.subcategory', fn($q) => $q->where('nombre', $categoria));
+                $q->whereHas('subsubcategory', fn($q) => $q->where('nombre','LIKE', '%'.$categoria.'%'))
+                    ->orWhereHas('subsubcategory.subcategory', fn($q) => $q->where('nombre','LIKE','%'.$categoria.'%'));
             })->select('id', 'nombre')->distinct()->get();
 
             return response()->json($brands);
