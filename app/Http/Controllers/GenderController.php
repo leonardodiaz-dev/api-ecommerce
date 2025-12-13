@@ -22,8 +22,8 @@ class GenderController extends Controller
         try {
             $category_nombre = $request->query('categoriaNombre');
             $genders = Gender::whereHas('articles',fn($q) =>
-                $q->whereHas('subsubcategory',fn($q) =>$q->where('nombre', $category_nombre))
-                    ->orWhereHas('subsubcategory.subcategory',fn($q) =>$q->where('nombre', $category_nombre))
+                $q->whereHas('subsubcategory',fn($q) =>$q->where('nombre','LIKE', '%'.$category_nombre.'%'))
+                    ->orWhereHas('subsubcategory.subcategory',fn($q) =>$q->where('nombre','LIKE', '%'.$category_nombre.'%'))
             )
                 ->select('id', 'nombre')
                 ->distinct()
