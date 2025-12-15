@@ -10,6 +10,7 @@ use App\Http\Controllers\GenderController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SaleDetailController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SubcategoryController;
@@ -30,14 +31,14 @@ Route::get('/user', function (Request $request) {
 Route::prefix('v1')->group(function () {
   Route::post('stripe/webhook', [StripeController::class, 'webhook']);
   Route::resource('departments', DepartmentController::class);
-  Route::get('articles/show/{article}',[ArticleController::class,'getArticleById']);
+  Route::get('articles/show/{article}', [ArticleController::class, 'getArticleById']);
   Route::get('articles/find', [ArticleController::class, 'findArticles']);
   Route::get('articles/price', [ArticleController::class, 'getRangoPrecio']);
   Route::get('articles/busqueda', [ArticleController::class, 'findResults']);
-  Route::get('articles/slug/{slug}',[ArticleController::class,'show']);
-  Route::get('provinces/find/{id}',[ProvinceController::class,'getProvincesByDepartment']);
-  Route::get('districts/find/{id}',[DistrictController::class,'getDistrictsByProvince']);
-  Route::get('brands/find-byArticle/{nombre}',[BrandController::class,'getMarcasByArticle']);
+  Route::get('articles/slug/{slug}', [ArticleController::class, 'show']);
+  Route::get('provinces/find/{id}', [ProvinceController::class, 'getProvincesByDepartment']);
+  Route::get('districts/find/{id}', [DistrictController::class, 'getDistrictsByProvince']);
+  Route::get('brands/find-byArticle/{nombre}', [BrandController::class, 'getMarcasByArticle']);
   Route::get('genders/find', [GenderController::class, 'findGenders']);
   Route::resource('purchases', PurchaseController::class);
   Route::get('variants/find', [VariantController::class, 'findVariant']);
@@ -46,7 +47,7 @@ Route::prefix('v1')->group(function () {
   Route::resource('colors', ColorController::class);
   Route::resource('sizes', SizeController::class)->only('index');
   Route::get('categories/hierarchy', [CategoryController::class, 'getAllCategoriesWithHierarchy']);
-  Route::get('subsubcategories/brand/{brand}',[SubsubcategoryController::class,'getSubsubcategoriesByBrand']);
+  Route::get('subsubcategories/brand/{brand}', [SubsubcategoryController::class, 'getSubsubcategoriesByBrand']);
   Route::get('subcategories/category/{id}', [SubcategoryController::class, 'getSubcategoriesByCategoryId']);
   Route::get('subsubcategories/subcategory/{id}', [SubsubcategoryController::class, 'getSubsubcategoriesBySubcategoryId']);
   Route::get('subsubcategories/find/{subcategory}', [SubsubcategoryController::class, 'getSubsubcategoriesBySubcategory']);
