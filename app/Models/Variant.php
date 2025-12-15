@@ -8,6 +8,11 @@ class Variant extends Model
 {
     protected $fillable = ['color_id', 'size_id', 'article_id'];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+    
     public function article()
     {
         return $this->belongsTo(Article::class);
