@@ -22,22 +22,30 @@ class SaleDetailController extends Controller
         try {
             $user = JWTAuth::parseToken()->authenticate();
             $user_id = $user->id;
-            $sales = Sale_detail::whereHas('sale', function ($q) use ($user_id) {
-                $q->where('user_id', $user_id);
-            })
-                ->with(['variant.article'])
+            $sales = Sale::where('user_id', $user_id)
+                ->with(['details.variant.article'])
+                ->orderByDesc('fecha')
                 ->get()
-                ->map(function ($detail) {
+                ->map(function ($sale) {
                     return [
-                        'id' => $detail->id,
-                        'cantidad' => $detail->cantidad,
-                        'precio'   => $detail->precio,
-                        'article'  => [
-                            'id'     => $detail->variant->article->id ?? null,
-                            'nombre' => $detail->variant->article->nombre ?? null,
-                            'imagen' => $detail->variant->article->imagen ?? null,
-                            'precio' => $detail->variant->article->precioVenta ?? null,
-                        ]
+                        'sale_id' => $sale->id,
+                        'fecha'   => $sale->fecha,
+                        'total'   => $sale->details->sum(fn($d) => $d->cantidad * $d->precio),
+                        'items' => $sale->details->map(fn($d) => [
+                            'cantidad'  => $d->cantidad,
+                            'precio'   => intval($d->precio),
+                            'subtotal' => $d->cantidad * $d->precio,
+                            'variant' => [
+                                'id'    => $d->variant->id,
+                                'color' => $d->variant->color->nombre ?? null,
+                                'size'  => $d->variant->size->nombre ?? null,
+                            ],
+                            'article' => [
+                                'id'     => $d->variant->article->id,
+                                'nombre' => $d->variant->article->nombre,
+                                'imagen' => $d->variant->article->imagen
+                            ]
+                        ])
                     ];
                 });
 
